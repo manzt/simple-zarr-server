@@ -20,13 +20,43 @@ You can install `simple-zarr-server` via [pip]:
 #### CLI:
 
 ```bash
+$ simple-zarr-server --help
+
+# Usage: simple-zarr-server [OPTIONS] PATH
+#
+# Options:
+#  -w, --allow-write
+#  --host TEXT                     Bind socket to this host.  [default:
+#                                  127.0.0.1]
+#
+#  --port INTEGER                  Bind socket to this port.  [default: 8000]
+#  --reload                        Enable auto-reload.
+#  --loop [auto|asyncio|uvloop]    Event loop implementation.  [default: auto]
+#  --http [auto|h11|httptools]     HTTP protocol implementation.  [default: auto]
+#
+#  --ws [auto|none|websockets|wsproto]
+#                                  WebSocket protocol implementation.
+#                                  [default: auto]
+#
+#  --use-colors / --no-use-colors  Enable/Disable colorized logging.
+#  --proxy-headers / --no-proxy-headers
+#                                  Enable/Disable X-Forwarded-Proto,
+#                                  X-Forwarded-For, X-Forwarded-Port to
+#                                  populate remote address info.
+#
+#  --forwarded-allow-ips TEXT      Comma seperated list of IPs to trust with
+#                                  proxy headers. Defaults to the
+#                                  $FORWARDED_ALLOW_IPS environment variable if
+#                                  available, or '127.0.0.1'.
+
 $ simple-zarr-server /dataset.zarr # or /dataset.n5, or /dataset.zip
+# INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 ```
 
 #### Python API:
 
-The python API is more flexible than the CLI, and can serve any `zarr.Array`, 
-`zarr.Group` or `np.ndarray`. 
+The python API is more flexible than the CLI, and can serve any [`zarr.Array`](https://zarr.readthedocs.io/en/stable/api/core.html#zarr.core.Array), 
+[`zarr.Group`](https://zarr.readthedocs.io/en/stable/api/hierarchy.html#zarr.hierarchy.Group) or `np.ndarray`. 
 
 ##### Server 
 
@@ -37,7 +67,7 @@ arr = np.random.rand(1024, 1024)
 serve(arr)
 ```
 
-#### Client
+##### Client
 
 ##### `zarr-python`
 
