@@ -1,0 +1,4 @@
+numpy>=1.19.0
+zarr>=2.4.0
+starlette>=0.13.6
+uvicorn>=0.11.6
