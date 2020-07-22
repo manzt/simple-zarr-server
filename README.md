@@ -1,11 +1,11 @@
 # simple-zarr-server
 
-[![License](https://img.shields.io/pypi/l/simple-zarr-server.svg?color=green)](https://github.com/manzt/simple-zarr-server/raw/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/simple-zarr-server.svg)](https://github.com/manzt/simple-zarr-server/raw/master/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/simple-zarr-server.svg?color=green)](https://pypi.org/project/simple-zarr-server)
 [![Python Version](https://img.shields.io/pypi/pyversions/simple-zarr-server.svg?color=green)](https://python.org)
 [![tests](https://github.com/manzt/simple-zarr-server/workflows/tests/badge.svg)](https://github.com/manzt/simple-zarr-server/actions)
 
-A simple server for sharing zarr over HTTP.
+A minimal server for sharing zarr over HTTP.
 
 ----------------------------------
 
@@ -64,7 +64,7 @@ The python API is more flexible than the CLI, and can serve any [`zarr.Array`](h
 from simple_zarr_server import serve
 import numpy as np
 arr = np.random.rand(1024, 1024)
-serve(arr)
+serve(arr) # creates an in-memory store if not zarr.Array or zarr.Group
 ```
 
 ##### Client
@@ -79,7 +79,6 @@ arr = zarr.open(store, mode='r')
 # or 
 import dask.array as da
 arr = da.from_zarr("http://localhost:8000")
-
 ```
 
 ##### `zarr.js`
@@ -91,7 +90,7 @@ arr = await openArray({ store: 'http://localhost:8000' });
 
 #### Advanced: Serving a remote pyramidal tiff as Zarr
 
-##### Server 
+##### Server
 
 ```python
 from napari_lazy_openslide import OpenSlideStore
@@ -112,7 +111,7 @@ import zarr
 from fsspec import get_mapper
 
 store = get_mapper("http://localhost:8000")
-grp = zarr.open(store)
+z_grp = zarr.open(store)
 datasets = z_grp.attrs["multiscales"][0]["datasets"]
 pyramid = [
     da.from_zarr(store, component=d["path"]) for d in datasets
@@ -121,6 +120,18 @@ with napari.gui_qt():
     napari.view_image(pyramid)
 ```
 
+## Note
+
+This package is experimental. It wraps *any* `zarr-python` store as a REST API, enabling remote access over HTTP.
+It is similar to [`xpublish`](https://github.com/xarray-contrib/xpublish), but is more minimal and 
+does not provide special endpoints that are specific to Xarray datasets. If your data are Xarray dataset, 
+_please_ use `xpublish`! `simple-zarr-server` was designed with imaging data in mind, and when combined with a tool
+like `ngrok` provides an interesting way to share local images with collaborators. 
+
+Some non-standard zarr stores that might be of interest include:
+
+- [`napari_lazy_openslide.OpenSlideStore`](https://github.com/manzt/napari-lazy-openslide) - read multiscale RGB TIFFs as zarr
+- [`HDF5Zarr`](https://github.com/catalystneuro/HDF5Zarr) - read HDF5 with zarr
 
 ## Contributing
 
