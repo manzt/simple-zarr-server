@@ -6,36 +6,39 @@ import uvicorn
 import zarr
 
 
-def create_zarr_server(store, writeable=False):
+def create_zarr_server(z):
     """Creates a Starlette app, mapping HTTP requests on top of a Zarr store.
 
     Parameters
     ----------
-    store : collections.MutableMapping
-        Mutable interface underlying a zarr.Array or zarr.Group.
-    writeable : bool
-        Whether to allow write to store over HTTP.
+    z : zarr.Array or zarr.Group
+        Part of zarr hierarchy to expose over HTTP. The `read_only` property is
+        checked to determine which HTTP methods are available.
 
     Returns
     -------
     app : starlette.applications.Starlette
         Starlette app
     """
+    # Use read_only property to determine how the underlying store should be protected.
+    methods = ["GET", "HEAD", "PUT"] if not z.read_only else ["GET", "HEAD"]
+    # If z isn't the root of a hierarchy, need to prepend it's path.
+    path_prefix = f"{z.path}/" if z.path else ""
 
     async def map_request(request):
-        path = request.path_params["path"]
+        path = path_prefix + request.path_params["path"]
         if request.method == "PUT":
             # PUT only handled if writeable
             try:
                 blob = await request.body()
-                store[path] = blob
+                z.store[path] = blob
                 return Response(status_code=200)
             except:
                 return Response(status_code=404)
         else:
             try:
                 # Return blob if GET, otherwise it's HEAD and should return empty body
-                body = store[path]
+                body = z.store[path]
                 if request.method == "HEAD":
                     body = None
                 return Response(body, status_code=200)
@@ -43,12 +46,11 @@ def create_zarr_server(store, writeable=False):
                 # Key not in store, return 404
                 return Response(status_code=404)
 
-    methods = ["GET", "HEAD", "PUT"] if writeable else ["GET", "HEAD"]
     routes = [Route("/{path:path}", endpoint=map_request, methods=methods)]
     return Starlette(routes=routes)
 
 
-def serve(source, *, writeable=False, **kwargs):
+def serve(source, **kwargs):
     """Starts an HTTP server, serving a part of a zarr hierarchy or numpy array as zarr.
 
     Parameters
@@ -57,8 +59,6 @@ def serve(source, *, writeable=False, **kwargs):
         Source data to serve over HTTP. The underlying store of a zarr.Array,
         or zarr.Group are used to forward requests. If a numpy array is provided,
         an in-memory zarry array is created, and the underlying store is wrapped.
-    writeable : bool
-        Whether to allow write to store over HTTP.
     **kwargs : keyword arguments
         All extra keyword arguments are forwarded to uvicorn.run
     """
@@ -72,5 +72,5 @@ def serve(source, *, writeable=False, **kwargs):
             "Source is not one of numpy.ndarray, zarr.Array, or zarr.Group."
         )
 
-    server = create_zarr_server(source.store, writeable)
+    server = create_zarr_server(source)
     uvicorn.run(server, **kwargs)

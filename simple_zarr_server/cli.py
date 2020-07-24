@@ -16,7 +16,12 @@ LOOP_CHOICES = click.Choice([key for key in LOOP_SETUPS.keys() if key != "none"]
 
 @click.command()
 @click.argument("path", type=click.Path(exists=True))
-@click.option("--allow-write", "-w", is_flag=True)
+@click.option(
+    "--allow-write",
+    "-w",
+    help="Whether to allow PUT requests and enable write to underlying store.",
+    is_flag=True,
+)
 # These options are mostly copied from uvicorn's docs
 @click.option(
     "--host",
@@ -90,7 +95,7 @@ def main(
     use_colors,
 ):
     # Handles opening .n5, .zip, and .zarr extensions
-    z = zarr.open(path)
+    z = zarr.open(path, mode="a" if allow_write else "r")
     config = {
         "host": host,
         "port": port,
@@ -103,4 +108,4 @@ def main(
         "forwarded_allow_ips": forwarded_allow_ips,
         "use_colors": use_colors,
     }
-    serve(z, writeable=allow_write, **config)
+    serve(z, **config)
