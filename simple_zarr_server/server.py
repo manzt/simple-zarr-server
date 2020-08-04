@@ -2,6 +2,8 @@ import numpy as np
 from starlette.applications import Starlette
 from starlette.responses import Response
 from starlette.routing import Route
+from starlette.middleware.cors import CORSMiddleware
+
 import uvicorn
 import zarr
 
@@ -50,7 +52,7 @@ def create_zarr_server(z):
     return Starlette(routes=routes)
 
 
-def serve(source, **kwargs):
+def serve(source, *, allowed_origins=None, **kwargs):
     """Starts an HTTP server, serving a part of a zarr hierarchy or numpy array as zarr.
 
     Parameters
@@ -59,6 +61,8 @@ def serve(source, **kwargs):
         Source data to serve over HTTP. The underlying store of a zarr.Array,
         or zarr.Group are used to forward requests. If a numpy array is provided,
         an in-memory zarry array is created, and the underlying store is wrapped.
+    allowed_origins : list of str, optional
+        List of allowed origins (as strings). Use wildcard "*" to allow all.
     **kwargs : keyword arguments
         All extra keyword arguments are forwarded to uvicorn.run
     """
@@ -73,4 +77,12 @@ def serve(source, **kwargs):
         )
 
     server = create_zarr_server(source)
+    if allowed_origins:
+        server.add_middleware(
+            CORSMiddleware,
+            allow_origins=allowed_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
     uvicorn.run(server, **kwargs)

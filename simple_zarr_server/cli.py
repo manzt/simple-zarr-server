@@ -17,6 +17,12 @@ LOOP_CHOICES = click.Choice([key for key in LOOP_SETUPS.keys() if key != "none"]
 @click.command()
 @click.argument("path", type=click.Path(exists=True))
 @click.option(
+    "--cors",
+    type=str,
+    default=None,
+    help="Origin to allow CORS. Use wildcard '*' to allow all.",
+)
+@click.option(
     "--allow-write",
     "-w",
     help="Whether to allow PUT requests and enable write to underlying store.",
@@ -82,6 +88,7 @@ LOOP_CHOICES = click.Choice([key for key in LOOP_SETUPS.keys() if key != "none"]
 )
 def main(
     path,
+    cors,
     allow_write,
     host,
     port,
@@ -108,4 +115,4 @@ def main(
         "forwarded_allow_ips": forwarded_allow_ips,
         "use_colors": use_colors,
     }
-    serve(z, **config)
+    serve(z, allowed_origins=[cors], **config)
