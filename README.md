@@ -25,9 +25,9 @@ $ simple-zarr-server --help
 # Usage: simple-zarr-server [OPTIONS] PATH
 #
 # Options:
+#  --cors TEXT                     Origin to allow CORS. Use wildcard '*' to allow all.
 #  -w, --allow-write
-#  --host TEXT                     Bind socket to this host.  [default:
-#                                  127.0.0.1]
+#  --host TEXT                     Bind socket to this host.  [default: 127.0.0.1]
 #
 #  --port INTEGER                  Bind socket to this port.  [default: 8000]
 #  --reload                        Enable auto-reload.
@@ -35,8 +35,7 @@ $ simple-zarr-server --help
 #  --http [auto|h11|httptools]     HTTP protocol implementation.  [default: auto]
 #
 #  --ws [auto|none|websockets|wsproto]
-#                                  WebSocket protocol implementation.
-#                                  [default: auto]
+#                                  WebSocket protocol implementation. [default: auto]
 #
 #  --use-colors / --no-use-colors  Enable/Disable colorized logging.
 #  --proxy-headers / --no-proxy-headers
