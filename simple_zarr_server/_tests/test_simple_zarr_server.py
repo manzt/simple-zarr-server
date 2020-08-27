@@ -1,8 +1,9 @@
 import pytest
 import numpy as np
 import zarr
-from simple_zarr_server.server import create_zarr_server
+from simple_zarr_server.server import create_zarr_route
 from starlette.testclient import TestClient
+from starlette.applications import Starlette
 
 
 class HTTPStore:
@@ -33,7 +34,8 @@ def test_numpy_read_only():
     z = zarr.array(original, read_only=True)
 
     # Initialize app
-    app = create_zarr_server(z)
+    route = create_zarr_route(z)
+    app = Starlette(routes=[route])
 
     # Open remote array and compare
     remote_store = HTTPStore(TestClient(app))
@@ -51,7 +53,8 @@ def test_numpy_writeable():
     mutable = zarr.array(original)
 
     # Initialize app
-    app = create_zarr_server(mutable)
+    route = create_zarr_route(mutable)
+    app = Starlette(routes=[route])
 
     # Open remote array and compare
     remote_store = HTTPStore(TestClient(app))
@@ -68,7 +71,8 @@ def test_nested_array():
     grp.create_dataset("nested", data=original)
 
     # Intitilize app with nested nested array
-    app = create_zarr_server(grp.get("nested"))
+    route = create_zarr_route(grp.get("nested"))
+    app = Starlette(routes=[route])
 
     # Ensure indexing works
     remote_store = HTTPStore(TestClient(app))
