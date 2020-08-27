@@ -1,14 +1,14 @@
 import numpy as np
 from starlette.applications import Starlette
 from starlette.responses import Response
-from starlette.routing import Route
+from starlette.routing import Route, Mount
 from starlette.middleware.cors import CORSMiddleware
 
 import uvicorn
 import zarr
 
 
-def create_zarr_server(z):
+def create_zarr_route(z):
     """Creates a Starlette app, mapping HTTP requests on top of a Zarr store.
 
     Parameters
@@ -48,11 +48,10 @@ def create_zarr_server(z):
                 # Key not in store, return 404
                 return Response(status_code=404)
 
-    routes = [Route("/{path:path}", endpoint=map_request, methods=methods)]
-    return Starlette(routes=routes)
+    return Route("/{path:path}", endpoint=map_request, methods=methods)
 
 
-def serve(source, *, allowed_origins=None, **kwargs):
+def serve(source, *, name=None, allowed_origins=None, **kwargs):
     """Starts an HTTP server, serving a part of a zarr hierarchy or numpy array as zarr.
 
     Parameters
@@ -61,6 +60,9 @@ def serve(source, *, allowed_origins=None, **kwargs):
         Source data to serve over HTTP. The underlying store of a zarr.Array,
         or zarr.Group are used to forward requests. If a numpy array is provided,
         an in-memory zarry array is created, and the underlying store is wrapped.
+    name : str
+        Path prefix for underlying store keys (e.g. "data.zarr"). If provided, routes are 
+        prefixed with name.
     allowed_origins : list of str, optional
         List of allowed origins (as strings). Use wildcard "*" to allow all.
     **kwargs : keyword arguments
@@ -76,7 +78,9 @@ def serve(source, *, allowed_origins=None, **kwargs):
             "Source is not one of numpy.ndarray, zarr.Array, or zarr.Group."
         )
 
-    server = create_zarr_server(source)
+    route = create_zarr_route(source)
+    routes = [route] if name is None else [Mount("/" + name, routes=[route])]
+    server = Starlette(routes=routes)
     if allowed_origins:
         server.add_middleware(
             CORSMiddleware,
