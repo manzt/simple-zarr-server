@@ -1,6 +1,6 @@
 # simple-zarr-server
 
-[![License](https://img.shields.io/pypi/l/simple-zarr-server.svg)](https://github.com/manzt/simple-zarr-server/raw/master/LICENSE)
+[![License](https://img.shields.io/pypi/l/simple-zarr-server.svg)](https://github.com/manzt/simple-zarr-server/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/simple-zarr-server.svg?color=green)](https://pypi.org/project/simple-zarr-server)
 [![Python Version](https://img.shields.io/pypi/pyversions/simple-zarr-server.svg?color=green)](https://python.org)
 [![tests](https://github.com/manzt/simple-zarr-server/workflows/tests/badge.svg)](https://github.com/manzt/simple-zarr-server/actions)
