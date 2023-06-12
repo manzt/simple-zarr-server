@@ -27,20 +27,15 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "numpy>=1.19.0",
-    "zarr>=2.14.0",
+    "zarr>=2.4.0",
     "starlette>=0.13.6",
     "uvicorn>=0.11.6",
 ]
-urls = { homepage = "https://github.com/manzt/simple-zarr-server" }
 
-[project.optional-dependencies]
-dev = [
-    "black",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "httpx", # for testing starlette
-]
+[project.urls]
+Documentation = "https://github.com/manzt/simple-zarr-server#readme"
+Issues = "https://github.com/manzt/simple-zarr-server/issues"
+Source = "https://github.com/manzt/simple-zarr-server"
 
 [project.scripts]
 simple-zarr-server = "simple_zarr_server.cli:main"
@@ -49,21 +44,51 @@ simple-zarr-server = "simple_zarr_server.cli:main"
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "simple_zarr_server/_version.py"
+version-file = "src/simple_zarr_server/_version.py"
 
-[too.hatch.envs.default]
-features = ["dev"]
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+  "pytest-cov",
+  "httpx",
+  "coverage[toml]>=6.5",
+]
 
 [tool.hatch.envs.default.scripts]
+typing = "mypy --strict --install-types --non-interactive {args:src/simple_zarr_server tests}"
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.8", "3.9", "3.10", "3.11"]
+
+[tool.hatch.envs.lint]
+detached = true
+dependencies = [
+  "black>=23.1.0",
+  "ruff>=0.0.243",
+]
+[tool.hatch.envs.lint.scripts]
+style = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+]
 fmt = [
-    "black .",
-    "ruff --fix .",
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "style",
 ]
-check = [
-    "black --check --diff .",
-    "ruff .",
+all = [
+  "style",
 ]
-test = "pytest . --cov anywidget --color=yes --cov-report term-missing"
 
 [tool.ruff]
 line-length = 88
@@ -77,3 +102,9 @@ extend-select = [
     "RUF",  # ruff-specific rules
 ]
 ignore = ["E501"] # ignore line-length, enforced by black
+
+[tool.ruff.isort]
+known-first-party = ["simple_zarr_server"]
+
+[tool.ruff.per-file-ignores]
+"src/simple_zarr_server/__init__.py" = ["E402"]

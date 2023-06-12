@@ -37,7 +37,6 @@ class HTTPStore(BaseStore):
         raise NotImplementedError
 
 
-
 def test_numpy_read_only():
     # Create data
     original = np.random.rand(1024, 1024)
