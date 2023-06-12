@@ -57,7 +57,7 @@ $ simple-zarr-server /dataset.zarr # or /dataset.n5, or /dataset.zip
 The python API is more flexible than the CLI, and can serve any [`zarr.Array`](https://zarr.readthedocs.io/en/stable/api/core.html#zarr.core.Array), 
 [`zarr.Group`](https://zarr.readthedocs.io/en/stable/api/hierarchy.html#zarr.hierarchy.Group) or `np.ndarray`. 
 
-##### Server 
+##### Server
 
 ```python
 from simple_zarr_server import serve
@@ -73,7 +73,7 @@ serve(arr) # creates an in-memory store if not zarr.Array or zarr.Group
 ```python
 import zarr
 from fsspec import get_mapper
-store = get_mapper("http://localhost:8000") 
+store = get_mapper("http://localhost:8000")
 arr = zarr.open(store, mode='r')
 # or 
 import dask.array as da
@@ -134,7 +134,7 @@ Some non-standard zarr stores that might be of interest include:
 
 ## Contributing
 
-Contributions are very welcome. Tests can be run with [tox].
+Contributions are very welcome. Tests can be run with `hatch run cov`.
 
 ## License
 
@@ -147,6 +147,6 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
 [file an issue]: https://github.com/manzt/simple-zarr-server/issues
-[tox]: https://tox.readthedocs.io/en/latest/
+[hatch]: https://hatch.pypa.io/latest/
 [pip]: https://pypi.org/project/pip/
 [PyPI]: https://pypi.org/

@@ -1,5 +1,4 @@
 import click
-from simple_zarr_server.server import serve
 import zarr
 from uvicorn.config import (
     HTTP_PROTOCOLS,
@@ -7,6 +6,8 @@ from uvicorn.config import (
     LOOP_SETUPS,
     WS_PROTOCOLS,
 )
+
+from simple_zarr_server.server import serve
 
 HTTP_CHOICES = click.Choice(HTTP_PROTOCOLS.keys())
 WS_CHOICES = click.Choice(WS_PROTOCOLS.keys())

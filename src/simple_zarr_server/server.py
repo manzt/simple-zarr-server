@@ -1,14 +1,15 @@
-import numpy as np
-from starlette.applications import Starlette
-from starlette.responses import Response
-from starlette.routing import Route, Mount
-from starlette.middleware.cors import CORSMiddleware
+from __future__ import annotations
 
+import numpy as np
 import uvicorn
 import zarr
+from starlette.applications import Starlette
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import Response
+from starlette.routing import Mount, Route
 
 
-def create_zarr_route(z):
+def create_zarr_route(z: zarr.Array | zarr.Group) -> Route:
     """Creates a Starlette app, mapping HTTP requests on top of a Zarr store.
 
     Parameters
@@ -19,8 +20,8 @@ def create_zarr_route(z):
 
     Returns
     -------
-    app : starlette.applications.Starlette
-        Starlette app
+    route : starlette.routing.Route
+        Route object that can be added to a Starlette app.
     """
     # Use read_only property to determine how the underlying store should be protected.
     methods = ["GET", "HEAD", "PUT"] if not z.read_only else ["GET", "HEAD"]
@@ -35,7 +36,7 @@ def create_zarr_route(z):
                 blob = await request.body()
                 z.store[path] = blob
                 return Response(status_code=200)
-            except:
+            except Exception:
                 return Response(status_code=404)
         else:
             try:
@@ -51,7 +52,13 @@ def create_zarr_route(z):
     return Route("/{path:path}", endpoint=map_request, methods=methods)
 
 
-def serve(source, *, name=None, allowed_origins=None, **kwargs):
+def serve(
+    source: zarr.Array | zarr.Group | np.ndarray,
+    *,
+    name: str | None = None,
+    allowed_origins: list[str] | None = None,
+    **kwargs,
+):
     """Starts an HTTP server, serving a part of a zarr hierarchy or numpy array as zarr.
 
     Parameters
@@ -61,7 +68,7 @@ def serve(source, *, name=None, allowed_origins=None, **kwargs):
         or zarr.Group are used to forward requests. If a numpy array is provided,
         an in-memory zarry array is created, and the underlying store is wrapped.
     name : str
-        Path prefix for underlying store keys (e.g. "data.zarr"). If provided, routes are 
+        Path prefix for underlying store keys (e.g. "data.zarr"). If provided, routes are
         prefixed with name.
     allowed_origins : list of str, optional
         List of allowed origins (as strings). Use wildcard "*" to allow all.

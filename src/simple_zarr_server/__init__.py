@@ -3,4 +3,4 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from .server import serve, create_zarr_route
+from .server import serve, create_zarr_route  # noqa
