@@ -27,11 +27,20 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
     "numpy>=1.19.0",
-    "zarr>=2.4.0",
+    "zarr>=2.14.0",
     "starlette>=0.13.6",
     "uvicorn>=0.11.6",
 ]
 urls = { homepage = "https://github.com/manzt/simple-zarr-server" }
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "httpx", # for testing starlette
+]
 
 [project.scripts]
 simple-zarr-server = "simple_zarr_server.cli:main"
@@ -41,3 +50,30 @@ source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "simple_zarr_server/_version.py"
+
+[too.hatch.envs.default]
+features = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+fmt = [
+    "black .",
+    "ruff --fix .",
+]
+check = [
+    "black --check --diff .",
+    "ruff .",
+]
+test = "pytest . --cov anywidget --color=yes --cov-report term-missing"
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+extend-select = [
+    "E",    # style errors
+    "F",    # flake
+    # "D",    # pydocstyle
+    "I001", # isort
+    "UP",   # pyupgrade
+    "RUF",  # ruff-specific rules
+]
+ignore = ["E501"] # ignore line-length, enforced by black

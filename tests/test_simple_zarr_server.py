@@ -1,31 +1,41 @@
-import pytest
 import numpy as np
+import pytest
 import zarr
-from simple_zarr_server.server import create_zarr_route
-from starlette.testclient import TestClient
 from starlette.applications import Starlette
+from starlette.testclient import TestClient
+from zarr.storage import BaseStore
+
+from simple_zarr_server.server import create_zarr_route
 
 
-class HTTPStore:
-    def __init__(self, client):
+class HTTPStore(BaseStore):
+    def __init__(self, client: TestClient):
         self.client = client
 
-    def __getitem__(self, path):
+    def __getitem__(self, path: str):
         r = self.client.get(f"/{path}")
-        if r.ok:
-            return r.content
-        else:
-            raise KeyError
+        if r.is_error:
+            raise KeyError(path)
+        return r.content
 
-    def __contains__(self, path):
+    def __contains__(self, path: str):
         r = self.client.head(f"/{path}")
-        if r.ok:
-            return True
+        return r.is_success
 
-    def __setitem__(self, path, cdata):
-        r = self.client.put(f"/{path}", cdata)
-        if not r.ok:
+    def __setitem__(self, path: str, cdata: bytes):
+        r = self.client.put(f"/{path}", content=cdata)
+        if r.is_error:
             raise ValueError
+
+    def __delitem__(self, path: str):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def __iter__(self):
+        raise NotImplementedError
+
 
 
 def test_numpy_read_only():
