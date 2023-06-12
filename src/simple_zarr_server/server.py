@@ -66,7 +66,7 @@ def serve(
     source : zarr.Array, zarr.Group, or np.ndarray
         Source data to serve over HTTP. The underlying store of a zarr.Array,
         or zarr.Group are used to forward requests. If a numpy array is provided,
-        an in-memory zarry array is created, and the underlying store is wrapped.
+        an in-memory zarray array is created, and the underlying store is wrapped.
     name : str
         Path prefix for underlying store keys (e.g. "data.zarr"). If provided, routes are
         prefixed with name.
