@@ -43,9 +43,6 @@ simple-zarr-server = "simple_zarr_server.cli:main"
 [tool.hatch.version]
 source = "vcs"
 
-[tool.hatch.build.hooks.vcs]
-version-file = "src/simple_zarr_server/_version.py"
-
 [tool.hatch.envs.default]
 dependencies = [
   "pytest",

@@ -1,6 +1,10 @@
+"""Serve Zarr stores over HTTP."""
+
+from importlib.metadata import PackageNotFoundError, version
+
 try:
-    from ._version import version as __version__
-except ImportError:
-    __version__ = "unknown"
+    __version__ = version("simple-zarr-server")
+except PackageNotFoundError:
+    __version__ = "uninstalled"
 
 from .server import serve, create_zarr_route  # noqa
