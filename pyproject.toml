@@ -7,7 +7,7 @@ name = "simple-zarr-server"
 description = "A simple server for sharing zarr over HTTP."
 authors = [
     { name = "Trevor Manz", email = "trevor.j.manz@gmail.com" },
-}
+]
 license = { text = "BSD-3" }
 readme = "README.md"
 classifiers = [
